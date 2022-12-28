@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "member_backend",
+        "type": "node",
+        "request": "attach",
+        "port": 9229,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}",
+        "protocol": "inspector",
+        "restart": true
+      },
+      {
+        "name": "docker member_backend",
+        "type": "node",
+        "request": "attach",
+        "port": 8452,
+        "address": "localhost",
+        "remoteRoot": "/home/app/member-backend",
+        "protocol": "inspector",
+        "restart": true
+      }
+    ]
+  }
+  
