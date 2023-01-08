@@ -1,33 +1,29 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement()) @db.UnsignedInt
   /// To clip different system account
-  domain    Int      @default(0) @db.UnsignedSmallInt
+  domain      Int          @default(0) @db.UnsignedSmallInt
   /// user account
-  account   String   @db.VarChar(50)
-  password  String   @db.VarChar(128)
-  salt      String   @db.VarChar(12)
+  account     String       @db.VarChar(50)
+  password    String       @db.VarChar(128)
+  salt        String       @db.VarChar(12)
   /// register account type, 0 is this system, 1 is third_part from google and so on...
-  type      Int      @default(0) @db.UnsignedSmallInt
+  type        Int          @default(0) @db.UnsignedSmallInt
   /// status code for user, 0: registered, 1: verify account, 2: archived and so on....
-  status    Int      @default(0) @db.UnsignedSmallInt
+  status      Int          @default(0) @db.UnsignedSmallInt
   /// register time
-  createdAt DateTime @default(now())
-
+  createdAt   DateTime     @default(now())
+  LoginRecord LoginRecord?
   userInfo    UserInfo?
-  LoginRecord LoginRecord[]
   UserVerify  UserVerify[]
 
   @@unique([domain, account])
@@ -36,22 +32,21 @@ model User {
 /// save User basic information
 model UserInfo {
   /// User id
-  userId Int     @id
+  userId Int     @id @db.UnsignedInt
   /// user name
   name   String? @db.VarChar(50)
   /// bind email, could use for forgot password and so on... is it verifed to see User.status
   email  String? @db.VarChar(320)
   /// Customization data
-  custom Json    @default("{}")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  custom Json
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// user verify code or another verify info
 model UserVerify {
-  id        Int      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
   /// User id
-  userId    Int
+  userId    Int      @db.UnsignedInt
   /// verify info type, 0: login, 1: email and so on...
   type      Int      @db.UnsignedSmallInt
   /// code status, 0: usable, 1: disable and so on...
@@ -63,17 +58,16 @@ model UserVerify {
   /// code created time
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// user login record, create only.
 model LoginRecord {
-  id        Int      @id @default(autoincrement())
-  userId    Int
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int      @db.UnsignedInt
   /// status code 0: succeed, 1: failed and so on....
   code      Int      @db.UnsignedSmallInt
   /// record created At, it is often crated at loging
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user      User     @relation(fields: [id], references: [id], onDelete: Cascade)
 }
