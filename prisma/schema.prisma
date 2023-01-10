@@ -9,24 +9,37 @@ datasource db {
 }
 
 model User {
-  id          Int          @id @default(autoincrement()) @db.UnsignedInt
+  id          Int              @id @default(autoincrement()) @db.UnsignedInt
   /// To clip different system account
-  domain      Int          @default(0) @db.UnsignedSmallInt
+  domain      USER_ENUM_DOMAIN @default(MEMBERSHIP)
   /// user account
-  account     String       @db.VarChar(50)
-  password    String       @db.VarChar(128)
-  salt        String       @db.VarChar(12)
-  /// register account type, 0 is this system, 1 is third_part from google and so on...
-  type        Int          @default(0) @db.UnsignedSmallInt
-  /// status code for user, 0: registered, 1: verify account, 2: archived and so on....
-  status      Int          @default(0) @db.UnsignedSmallInt
+  account     String           @db.VarChar(50)
+  password    String           @db.VarChar(128)
+  salt        String           @db.VarChar(12)
+  /// register account type
+  type        USER_ENUM_TYPE   @default(MEMBERSHIP)
+  /// status code for user
+  status      USER_ENUM_STATUS @default(REGISTERED)
   /// register time
-  createdAt   DateTime     @default(now())
+  createdAt   DateTime         @default(now())
   LoginRecord LoginRecord?
   userInfo    UserInfo?
   UserVerify  UserVerify[]
 
   @@unique([domain, account])
+}
+
+enum USER_ENUM_DOMAIN {
+  MEMBERSHIP
+}
+
+enum USER_ENUM_TYPE {
+  MEMBERSHIP
+}
+
+enum USER_ENUM_STATUS {
+  REGISTERED
+  VERIFY_ACCOUNT
 }
 
 /// save User basic information
@@ -44,30 +57,45 @@ model UserInfo {
 
 /// user verify code or another verify info
 model UserVerify {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  id        Int                @id @default(autoincrement()) @db.UnsignedInt
   /// User id
-  userId    Int      @db.UnsignedInt
-  /// verify info type, 0: login, 1: email and so on...
-  type      Int      @db.UnsignedSmallInt
+  userId    Int                @db.UnsignedInt
+  /// verify info type
+  type      USER_VERIFY_TYPE
   /// code status, 0: usable, 1: disable and so on...
-  status    Int      @db.UnsignedSmallInt
+  status    USER_VERIFY_STATUS
   /// verify code
-  code      String   @db.VarChar(12)
+  code      String             @db.VarChar(12)
   /// code expired time
   expiredAt DateTime
   /// code created time
-  createdAt DateTime @default(now())
+  createdAt DateTime           @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum USER_VERIFY_TYPE {
+  LOGIN
+  EMAIL
+}
+
+enum USER_VERIFY_STATUS {
+  USABLE
+  DISABLE
+}
+
 /// user login record, create only.
 model LoginRecord {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  userId    Int      @db.UnsignedInt
-  /// status code 0: succeed, 1: failed and so on....
-  code      Int      @db.UnsignedSmallInt
+  id        Int                    @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int                    @db.UnsignedInt
+  /// status code
+  code      LOGIN_RECORD_ENUM_CODE
   /// record created At, it is often crated at loging
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [id], references: [id], onDelete: Cascade)
+  createdAt DateTime               @default(now())
+  user      User                   @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+enum LOGIN_RECORD_ENUM_CODE {
+  SUCCEED
+  FAILED
 }
