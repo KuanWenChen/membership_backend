@@ -4,12 +4,12 @@ import { RegisterDto } from 'src/common/provider/user/dto/register.dto';
 import { User } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 
-@Controller('register')
-export class RegisterController {
+@Controller('user')
+export class UserController {
   private logger = new Logger('RegisterController');
   constructor(private userService: UserService) {}
 
-  @Post('/user')
+  @Post('/register')
   async register(
     @Body() registerDto: RegisterDto,
   ): Promise<Pick<User, 'id' | 'domain' | 'account'>> {
