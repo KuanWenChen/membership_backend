@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { USER_ENUM_DOMAIN, User } from '@prisma/client';
 import { PrismaService } from 'src/common/provider/prisma/prisma.service';
 import { PasswordService } from '../password/password.service';
-import { RegisterDto } from './user.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class UserService {

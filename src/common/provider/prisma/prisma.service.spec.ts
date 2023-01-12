@@ -8,7 +8,7 @@ describe('PrismaService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [PrismaService],
     }).compile();
-
+    await module.init();
     service = module.get<PrismaService>(PrismaService);
   });
 

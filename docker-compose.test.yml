@@ -1,0 +1,43 @@
+version: "3.0"
+
+services:
+  member_backend_test:
+    container_name: member_backend_test
+    image: member_backend_test
+    build: .
+    volumes:
+      - member-backend-test:/home/app/member-backend
+      - .:/home/app/member-backend
+      - /home/app/member-backend/node_modules
+      - /home/app/member-backend/.git
+      - /home/app/member-backend/.vscode
+    environment:
+      - NODE_ENV=test
+    entrypoint: /home/app/member-backend/docker-entrypoint.test.sh
+    networks:
+      - micro-service-test
+    depends_on: 
+      - member_backend_test_database
+
+  member_backend_test_database:
+    container_name: member_backend_test_database
+    image: mysql:8.0
+    hostname: member-backend-test-database
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+    ports:
+      - '4297:3306'
+    logging:
+      driver: none
+    networks:
+      - micro-service-test
+
+    
+
+networks:
+  micro-service-test:
+    external: true
+
+volumes:
+  member-backend-test:
+    external: true
