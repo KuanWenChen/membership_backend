@@ -10,10 +10,8 @@ datasource db {
 
 model User {
   id          Int              @id @default(autoincrement()) @db.UnsignedInt
-  /// To clip different system account
-  domain      USER_ENUM_DOMAIN @default(MEMBERSHIP)
   /// user account
-  account     String           @db.VarChar(50)
+  account     String           @unique @db.VarChar(50)
   password    String           @db.VarChar(128)
   salt        String           @db.VarChar(12)
   /// register account type
@@ -25,12 +23,6 @@ model User {
   LoginRecord LoginRecord?
   userInfo    UserInfo?
   UserVerify  UserVerify[]
-
-  @@unique([domain, account])
-}
-
-enum USER_ENUM_DOMAIN {
-  MEMBERSHIP
 }
 
 enum USER_ENUM_TYPE {
