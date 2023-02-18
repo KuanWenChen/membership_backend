@@ -27,7 +27,7 @@ export class UserEntity implements User {
 
   @Expose()
   @ApiProperty({ example: 'test password', description: '使用者密碼' })
-  @Length(1, 128, { message: '密碼長度限制為 1 ~ 128' })
+  @Length(6, 128, { message: '密碼長度限制為 6 ~ 128' })
   @IsString()
   password!: string;
 

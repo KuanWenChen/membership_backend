@@ -1,16 +1,23 @@
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Prisma, LOGIN_RECORD_ENUM_CODE } from '@prisma/client';
+
+import { dtoCheckSync } from 'src/common/util/dto-check';
 
 import { PrismaService } from 'src/common/provider/prisma/prisma.service';
 import { PasswordService } from '../password/password.service';
+import { TokenService } from '../token/token.service';
+
 import { RegisterUserDto } from './dto/register.dto';
-import { UserBasicEntity } from './entities/user.entity';
-import { dtoCheckSync } from 'src/common/util/dto-check';
+import { UserBasicEntity, UserTokenEntity } from './entities/user.entity';
+import { UserLoginDto } from './dto/login.dto';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger('UserService');
-  constructor(private prismaService: PrismaService, private passwordService: PasswordService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private passwordService: PasswordService,
+    private tokenService: TokenService,
+  ) {}
 
   public async register(registerDto: RegisterUserDto): Promise<UserBasicEntity> {
     registerDto = dtoCheckSync(RegisterUserDto, registerDto);
@@ -31,6 +38,29 @@ export class UserService {
     });
 
     return newUser;
+  }
+
+  public async login(userLoginDto: UserLoginDto): Promise<UserTokenEntity> {
+    const userId = await this.checkAccountExist(userLoginDto.account);
+    if (userId === null) throw new HttpException('使用者不存在或密碼錯誤', HttpStatus.UNAUTHORIZED);
+
+    const user = await this.prismaService.user.findFirst({
+      where: { id: userId },
+      select: { password: true, salt: true, ...this.getUserBasicSelect() },
+    });
+
+    if (user === null) throw new HttpException('使用者不存在或密碼錯誤', HttpStatus.UNAUTHORIZED);
+
+    const verify = await this.passwordService.verify(userLoginDto.password, user.salt, user.password);
+    if (verify === false) {
+      await this.prismaService.loginRecord.create({ data: { userId: userId, code: LOGIN_RECORD_ENUM_CODE.FAILED } });
+      throw new HttpException('使用者不存在或密碼錯誤', HttpStatus.UNAUTHORIZED);
+    }
+
+    await this.prismaService.loginRecord.create({ data: { userId: userId, code: LOGIN_RECORD_ENUM_CODE.SUCCEED } });
+    const token = await this.tokenService.generateUserToken(user);
+    const userTokenEntity = dtoCheckSync(UserTokenEntity, { token: token, ...user });
+    return userTokenEntity;
   }
 
   /**
