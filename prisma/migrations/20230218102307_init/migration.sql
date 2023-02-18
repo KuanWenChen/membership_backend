@@ -1,26 +1,27 @@
 -- CreateTable
 CREATE TABLE `User` (
     `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-    `domain` ENUM('MEMBERSHIP') NOT NULL DEFAULT 'MEMBERSHIP',
     `account` VARCHAR(50) NOT NULL,
     `password` VARCHAR(128) NOT NULL,
     `salt` VARCHAR(12) NOT NULL,
-    `type` ENUM('MEMBERSHIP') NOT NULL DEFAULT 'MEMBERSHIP',
-    `status` ENUM('REGISTERED', 'VERIFY_ACCOUNT') NOT NULL DEFAULT 'REGISTERED',
+    `registerType` ENUM('MEMBERSHIP') NOT NULL DEFAULT 'MEMBERSHIP',
+    `status` ENUM('NORMAL') NOT NULL DEFAULT 'NORMAL',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `User_domain_account_key`(`domain`, `account`),
+    UNIQUE INDEX `User_account_key`(`account`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `UserInfo` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
     `userId` INTEGER UNSIGNED NOT NULL,
     `name` VARCHAR(50) NULL,
     `email` VARCHAR(320) NULL,
     `custom` JSON NOT NULL,
 
-    PRIMARY KEY (`userId`)
+    UNIQUE INDEX `UserInfo_userId_key`(`userId`),
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable

@@ -9,35 +9,35 @@ datasource db {
 }
 
 model User {
-  id          Int              @id @default(autoincrement()) @db.UnsignedInt
+  id           Int                     @id @default(autoincrement()) @db.UnsignedInt
   /// user account
-  account     String           @unique @db.VarChar(50)
-  password    String           @db.VarChar(128)
-  salt        String           @db.VarChar(12)
+  account      String                  @unique @db.VarChar(50)
+  password     String                  @db.VarChar(128)
+  salt         String                  @db.VarChar(12)
   /// register account type
-  type        USER_ENUM_TYPE   @default(MEMBERSHIP)
+  registerType USER_ENUM_REGISTER_TYPE @default(MEMBERSHIP)
   /// status code for user
-  status      USER_ENUM_STATUS @default(REGISTERED)
+  status       USER_ENUM_STATUS        @default(NORMAL)
   /// register time
-  createdAt   DateTime         @default(now())
-  LoginRecord LoginRecord?
-  userInfo    UserInfo?
-  UserVerify  UserVerify[]
+  createdAt    DateTime                @default(now())
+  LoginRecord  LoginRecord?
+  userInfo     UserInfo?
+  UserVerify   UserVerify[]
 }
 
-enum USER_ENUM_TYPE {
+enum USER_ENUM_REGISTER_TYPE {
   MEMBERSHIP
 }
 
 enum USER_ENUM_STATUS {
-  REGISTERED
-  VERIFY_ACCOUNT
+  NORMAL
 }
 
 /// save User basic information
 model UserInfo {
+  id     Int     @id @default(autoincrement()) @db.UnsignedInt
   /// User id
-  userId Int     @id @db.UnsignedInt
+  userId Int     @unique @db.UnsignedInt
   /// user name
   name   String? @db.VarChar(50)
   /// bind email, could use for forgot password and so on... is it verifed to see User.status
