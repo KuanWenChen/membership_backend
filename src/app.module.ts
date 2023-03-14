@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { UserController } from './controller/user/user.controller';
@@ -10,10 +10,15 @@ import { TokenService } from './common/provider/token/token.service';
 
 import configuration from './config/configuration';
 import secretConfig from './config/secret.environment';
+import { HttpRequestLoggerMiddleware } from './common/middleware/http-request-logger/http-request-logger.middleware';
 
 @Module({
   imports: [ConfigModule.forRoot({ load: [configuration, secretConfig] })],
   controllers: [UserController],
   providers: [PrismaService, UserService, PasswordService, TokenService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpRequestLoggerMiddleware).forRoutes('*');
+  }
+}
