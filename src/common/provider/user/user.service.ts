@@ -53,13 +53,13 @@ export class UserService {
 
     const verify = await this.passwordService.verify(userLoginDto.password, user.salt, user.password);
     if (verify === false) {
-      await this.prismaService.loginRecord.create({ data: { userId: userId, code: LOGIN_RECORD_ENUM_CODE.FAILED } });
+      await this.prismaService.loginRecord.create({ data: { userId: user.id, code: LOGIN_RECORD_ENUM_CODE.FAILED } });
       throw new HttpException('使用者不存在或密碼錯誤', HttpStatus.UNAUTHORIZED);
     }
 
-    await this.prismaService.loginRecord.create({ data: { userId: userId, code: LOGIN_RECORD_ENUM_CODE.SUCCEED } });
-    const token = await this.tokenService.generateUserToken(user);
-    const userTokenEntity = dtoCheckSync(UserTokenEntity, { token: token, ...user });
+    await this.prismaService.loginRecord.create({ data: { userId: user.id, code: LOGIN_RECORD_ENUM_CODE.SUCCEED } });
+    const token = this.tokenService.generateUserToken(user);
+    const userTokenEntity = dtoCheckSync(UserTokenEntity, { ...user, token: token });
     return userTokenEntity;
   }
 

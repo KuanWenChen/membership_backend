@@ -17,12 +17,13 @@ export class TokenService {
     private secretConfig: ConfigType<typeof SecretConfig>,
   ) {}
 
-  async generateUserToken(userBasicEntity: UserBasicEntity): Promise<string> {
+  generateUserToken(userBasicEntity: UserBasicEntity): string {
     userBasicEntity = dtoCheckSync(UserBasicEntity, userBasicEntity);
     const plainPayload = instanceToPlain(userBasicEntity);
-    return sign(plainPayload, this.getJwtSecret(), {
+    const token = sign(plainPayload, this.getJwtSecret(), {
       expiresIn: this.userTokenExpireIn(),
     });
+    return token;
   }
 
   verifyUserToken(userToken: string): UserTokenEntity {
