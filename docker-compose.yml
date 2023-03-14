@@ -1,29 +1,26 @@
 version: "3.0"
 
 services:
-  member_backend:
-    container_name: member_backend
-    image: member_backend
+  member-backend:
+    container_name: member-backend
+    image: member-backend
     build: .
     ports:
       - "7251:3000"
-      - "8452:9229"
     volumes:
-      - member-backend:/home/app/member-backend
       - .:/home/app/member-backend
+      - /home/app/member-backend/dist
       - /home/app/member-backend/node_modules
       - /home/app/member-backend/.git
       - /home/app/member-backend/.vscode
+      - /home/app/member-backend/.npm
     environment:
       - NODE_ENV=development
-    command: npm run start:debug
+    entrypoint: /home/app/member-backend/docker-entrypoint.sh
     networks:
       - micro-service
 
 networks:
   micro-service:
     external: true
-
-volumes:
-  member-backend:
-    external: true
+    name: micro-service
