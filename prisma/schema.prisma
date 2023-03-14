@@ -20,7 +20,7 @@ model User {
   status       USER_ENUM_STATUS        @default(NORMAL)
   /// register time
   createdAt    DateTime                @default(now())
-  LoginRecord  LoginRecord?
+  LoginRecord  LoginRecord[]
   userInfo     UserInfo?
   UserVerify   UserVerify[]
 }
@@ -84,7 +84,8 @@ model LoginRecord {
   code      LOGIN_RECORD_ENUM_CODE
   /// record created At, it is often crated at loging
   createdAt DateTime               @default(now())
-  user      User                   @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum LOGIN_RECORD_ENUM_CODE {
