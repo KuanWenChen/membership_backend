@@ -2,6 +2,6 @@
     "watch": ["src", ".env"],
     "ext": "ts",
     "ignore": ["src/**/*.spec.ts"],
-    "exec": "npm run build && node --inspect=0.0.0.0 ./dist/main.js"
+    "exec": "npm run build; node ./dist/main.js"
   }
   
