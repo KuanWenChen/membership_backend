@@ -1,33 +1,30 @@
-import { Inject, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
-import { sign, verify } from 'jsonwebtoken';
+import { Injectable, Logger } from '@nestjs/common';
 
-import SecretConfig from 'src/config/secret.environment';
 import { UserBasicEntity, UserTokenEntity } from '../user/entities/user.entity';
 import { dtoCheckSync } from 'src/common/util/dto-check';
 import { instanceToPlain } from 'class-transformer';
 import { plainToClass } from 'class-transformer';
 import { UserEntity } from 'src/common/class/database-entity/user.entity';
 
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class TokenService {
   private readonly logger = new Logger('TokenService');
-  constructor(
-    @Inject(SecretConfig.KEY)
-    private secretConfig: ConfigType<typeof SecretConfig>,
-  ) {}
+  constructor(private jwtService: JwtService) {}
 
   generateUserToken(userBasicEntity: UserBasicEntity): string {
     userBasicEntity = dtoCheckSync(UserBasicEntity, userBasicEntity);
     const plainPayload = instanceToPlain(userBasicEntity);
-    const token = sign(plainPayload, this.getJwtSecret(), {
+
+    const token = this.jwtService.sign(plainPayload, {
       expiresIn: this.userTokenExpireIn(),
     });
     return token;
   }
 
   verifyUserToken(userToken: string): UserTokenEntity {
-    const decode = verify(userToken, this.getJwtSecret());
+    const decode = this.jwtService.verify(userToken);
     const userEntity = plainToClass(UserEntity, decode);
     const userTokenEntity = dtoCheckSync(UserTokenEntity, { token: userToken, ...userEntity });
 
@@ -36,15 +33,5 @@ export class TokenService {
 
   private userTokenExpireIn() {
     return 1000 * 60 * 60 * 24;
-  }
-
-  private getJwtSecret() {
-    const jwtSecret = this.secretConfig.jwtSecret;
-    if (jwtSecret === undefined || typeof jwtSecret !== 'string') {
-      this.logger.error('伺服器未設置環境變數 jwtSecret');
-      throw new HttpException('伺服器環境變數錯誤', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    return Buffer.from(jwtSecret, 'ascii');
   }
 }

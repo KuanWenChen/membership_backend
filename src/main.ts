@@ -22,6 +22,7 @@ async function bootstrap() {
 
 function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('MicroService Member System')
     .setDescription('MicroService Member System')
     .setVersion('0.1')
